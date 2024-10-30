@@ -34,40 +34,46 @@ const WaveControls = ({ settings, onSettingsChange }) => {
 
       <div className="space-y-2">
         <label className="block text-sm font-medium text-slate-200">Frequency (Hz)</label>
-        <Slider
-          value={[settings.frequency]}
-          min={20}
-          max={2000}
-          step={1}
-          onValueChange={([value]) => onSettingsChange({ frequency: value })}
-          className="py-4"
-        />
+        <div className="px-1">
+          <Slider
+            value={[settings.frequency]}
+            min={20}
+            max={2000}
+            step={1}
+            onValueChange={([value]) => onSettingsChange({ frequency: value })}
+            className="py-4 [&>.relative>span]:bg-blue-500 [&>.relative>span]:h-2 [&>.relative>span:first-child]:bg-slate-600 [&_span[role=slider]]:h-4 [&_span[role=slider]]:w-4 [&_span[role=slider]]:bg-blue-500"
+          />
+        </div>
         <span className="text-sm text-slate-300">{settings.frequency} Hz</span>
       </div>
 
       <div className="space-y-2">
         <label className="block text-sm font-medium text-slate-200">Amplitude</label>
-        <Slider
-          value={[settings.amplitude]}
-          min={0}
-          max={1}
-          step={0.01}
-          onValueChange={([value]) => onSettingsChange({ amplitude: value })}
-          className="py-4"
-        />
+        <div className="px-1">
+          <Slider
+            value={[settings.amplitude]}
+            min={0}
+            max={1}
+            step={0.01}
+            onValueChange={([value]) => onSettingsChange({ amplitude: value })}
+            className="py-4 [&>.relative>span]:bg-blue-500 [&>.relative>span]:h-2 [&>.relative>span:first-child]:bg-slate-600 [&_span[role=slider]]:h-4 [&_span[role=slider]]:w-4 [&_span[role=slider]]:bg-blue-500"
+          />
+        </div>
         <span className="text-sm text-slate-300">{settings.amplitude.toFixed(2)}</span>
       </div>
 
       <div className="space-y-2">
         <label className="block text-sm font-medium text-slate-200">Volume</label>
-        <Slider
-          value={[settings.volume]}
-          min={0}
-          max={1}
-          step={0.01}
-          onValueChange={([value]) => onSettingsChange({ volume: value })}
-          className="py-4"
-        />
+        <div className="px-1">
+          <Slider
+            value={[settings.volume]}
+            min={0}
+            max={1}
+            step={0.01}
+            onValueChange={([value]) => onSettingsChange({ volume: value })}
+            className="py-4 [&>.relative>span]:bg-blue-500 [&>.relative>span]:h-2 [&>.relative>span:first-child]:bg-slate-600 [&_span[role=slider]]:h-4 [&_span[role=slider]]:w-4 [&_span[role=slider]]:bg-blue-500"
+          />
+        </div>
         <span className="text-sm text-slate-300">{settings.volume.toFixed(2)}</span>
       </div>
 
