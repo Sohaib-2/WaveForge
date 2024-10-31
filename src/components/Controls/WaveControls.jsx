@@ -5,7 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Play, Square } from 'lucide-react';
 
 const WaveControls = ({ settings, onSettingsChange }) => {
-  const waveTypes = ['sine', 'square', 'sawtooth', 'triangle'];
+  const waveTypes = ['sine', 'square', 'sawtooth', 'triangle', 'white', 'pink'];
+  
+  // Determine if frequency control should be shown
+  const showFrequency = !['white', 'pink'].includes(settings.type);
 
   return (
     <div className="space-y-6">
@@ -25,27 +28,29 @@ const WaveControls = ({ settings, onSettingsChange }) => {
                 value={type}
                 className="text-slate-200 hover:bg-slate-600 focus:bg-slate-600 focus:text-slate-200"
               >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
+                {type.charAt(0).toUpperCase() + type.slice(1)} {type === 'white' || type === 'pink' ? 'Noise' : 'Wave'}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-slate-200">Frequency (Hz)</label>
-        <div className="px-1">
-          <Slider
-            value={[settings.frequency]}
-            min={20}
-            max={2000}
-            step={1}
-            onValueChange={([value]) => onSettingsChange({ frequency: value })}
-            className="py-4 [&>.relative>span]:bg-blue-500 [&>.relative>span]:h-2 [&>.relative>span:first-child]:bg-slate-600 [&_span[role=slider]]:h-4 [&_span[role=slider]]:w-4 [&_span[role=slider]]:bg-blue-500"
-          />
+      {showFrequency && (
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-slate-200">Frequency (Hz)</label>
+          <div className="px-1">
+            <Slider
+              value={[settings.frequency]}
+              min={20}
+              max={2000}
+              step={1}
+              onValueChange={([value]) => onSettingsChange({ frequency: value })}
+              className="py-4 [&>.relative>span]:bg-blue-500 [&>.relative>span]:h-2 [&>.relative>span:first-child]:bg-slate-600 [&_span[role=slider]]:h-4 [&_span[role=slider]]:w-4 [&_span[role=slider]]:bg-blue-500"
+            />
+          </div>
+          <span className="text-sm text-slate-300">{settings.frequency} Hz</span>
         </div>
-        <span className="text-sm text-slate-300">{settings.frequency} Hz</span>
-      </div>
+      )}
 
       <div className="space-y-2">
         <label className="block text-sm font-medium text-slate-200">Amplitude</label>

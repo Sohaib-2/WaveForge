@@ -72,8 +72,19 @@ const WaveGenerator = () => {
       const activeOsc = activeOscillators.current.get(id);
       if (activeOsc) {
         const { oscillator, gain } = activeOsc;
-        oscillator.type = newSettings.type;
-        oscillator.frequency.setValueAtTime(newSettings.frequency, audioContext.currentTime);
+        
+        // Update oscillator type if changed (only for non-noise types)
+        if (updates.type && !['white', 'pink'].includes(updates.type) && 
+            !['white', 'pink'].includes(osc.type)) {
+          oscillator.type = updates.type;
+        }
+        
+        // Update frequency if changed and if it's not a noise type
+        if (updates.frequency && !['white', 'pink'].includes(newSettings.type)) {
+          oscillator.frequency.setValueAtTime(updates.frequency, audioContext.currentTime);
+        }
+        
+        // Update gain
         gain.gain.setValueAtTime(newSettings.volume * newSettings.amplitude, audioContext.currentTime);
       }
       
@@ -83,19 +94,18 @@ const WaveGenerator = () => {
 
   const startOscillator = (id) => {
     if (!audioContext || activeOscillators.current.has(id)) return;
-
+  
     const oscSettings = oscillators.find(o => o.id === id);
     if (!oscSettings) return;
-
-    const osc = createOscillator(oscSettings.type, oscSettings.frequency);
-    const oscGain = audioContext.createGain();
-    oscGain.gain.setValueAtTime(oscSettings.volume * oscSettings.amplitude, audioContext.currentTime);
+  
+    const nodes = createOscillator(oscSettings.type, oscSettings.frequency);
+    if (!nodes) return;
+  
+    const { oscillator, gainNode } = nodes;
+    gainNode.gain.setValueAtTime(oscSettings.volume * oscSettings.amplitude, audioContext.currentTime);
+    oscillator.start();
     
-    osc.connect(oscGain);
-    oscGain.connect(gainNode);
-    osc.start();
-    
-    activeOscillators.current.set(id, { oscillator: osc, gain: oscGain });
+    activeOscillators.current.set(id, { oscillator, gain: gainNode });
   };
 
   const stopOscillator = (id) => {
