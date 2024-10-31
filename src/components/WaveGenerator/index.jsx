@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Plus, Power, AudioWaveform } from 'lucide-react';
+import { Trash2, Plus, Power, AudioWaveform, Save } from 'lucide-react';
 import WaveControls from '../Controls/WaveControls';
 import WaveVisualizer from '../WaveVisualizer';
+import PresetManager from '../Controls/PresetManager';
 import useAudioContext from '../../hooks/useAudioContext';
 
 const WaveGenerator = () => {
@@ -19,6 +20,7 @@ const WaveGenerator = () => {
     }
   ]);
   const [analyser, setAnalyser] = useState(null);
+  const [showPresets, setShowPresets] = useState(false);
   const activeOscillators = useRef(new Map());
 
   const handleStartAudio = useCallback(() => {
@@ -121,6 +123,22 @@ const WaveGenerator = () => {
     };
   }, [oscillators.map(o => o.isPlaying).join(',')]);
 
+  const handlePresetLoad = (presetSettings) => {
+    // Stop all currently playing oscillators
+    oscillators.forEach(osc => {
+      if (osc.isPlaying) {
+        stopOscillator(osc.id);
+      }
+    });
+
+    // Load new preset settings
+    setOscillators(presetSettings.map((settings, index) => ({
+      ...settings,
+      id: index + 1,
+      isPlaying: false
+    })));
+  };
+
   return (
     <div className="h-[calc(100vh-16rem)]">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
@@ -162,6 +180,25 @@ const WaveGenerator = () => {
         </div>
 
         <div className="flex flex-col gap-3 overflow-auto pr-2">
+          {/* Presets Card */}
+          <Card className="bg-slate-900/50 border-slate-700/50 shadow-xl">
+            <CardHeader className="pb-2 px-3 pt-2">
+              <CardTitle className="text-slate-100 text-sm font-medium flex items-center gap-2">
+                <Save className="h-4 w-4 text-blue-400" />
+                Presets
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-3">
+              <PresetManager
+                currentSettings={oscillators.map(({ type, frequency, amplitude, volume }) => 
+                  ({ type, frequency, amplitude, volume })
+                )}
+                onPresetLoad={handlePresetLoad}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Oscillators */}
           <div className="space-y-2">
             {oscillators.map((osc) => (
               <Card 
@@ -198,6 +235,8 @@ const WaveGenerator = () => {
               </Card>
             ))}
           </div>
+          
+          {/* Add Oscillator Button */}
           <Button
             onClick={addOscillator}
             className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/50"
@@ -211,6 +250,7 @@ const WaveGenerator = () => {
     </div>
   );
 };
+
 
 
 export default WaveGenerator;
