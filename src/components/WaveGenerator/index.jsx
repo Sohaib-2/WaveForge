@@ -2,13 +2,16 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2, Plus, Power, AudioWaveform, Save } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import WaveControls from '../Controls/WaveControls';
+import AdvancedWaveControls from '../Controls/AdvanceWaveControls';
 import WaveVisualizer from '../WaveVisualizer';
 import PresetManager from '../Controls/PresetManager';
 import useAudioContext from '../../hooks/useAudioContext';
 
 const WaveGenerator = () => {
   const { audioContext, gainNode, createOscillator, initializeAudio } = useAudioContext();
+  const [currentTab, setCurrentTab] = useState('basic');
   const [oscillators, setOscillators] = useState([
     {
       id: 1,
@@ -49,7 +52,18 @@ const WaveGenerator = () => {
         frequency: 440,
         amplitude: 0.5,
         volume: 0.5,
-        isPlaying: false
+        isPlaying: false,
+        // Advanced parameters (only used in advanced mode)
+        startDelay: 0,
+        duration: 0, // 0 means infinite
+        frequencyEnvelope: null,
+        amplitudeEnvelope: {
+          attack: 0.1,
+          decay: 0.2,
+          sustain: 0.7,
+          release: 0.3
+        },
+        modulation: null
       }
     ]);
   };
@@ -73,18 +87,15 @@ const WaveGenerator = () => {
       if (activeOsc) {
         const { oscillator, gain } = activeOsc;
         
-        // Update oscillator type if changed (only for non-noise types)
         if (updates.type && !['white', 'pink'].includes(updates.type) && 
             !['white', 'pink'].includes(osc.type)) {
           oscillator.type = updates.type;
         }
         
-        // Update frequency if changed and if it's not a noise type
         if (updates.frequency && !['white', 'pink'].includes(newSettings.type)) {
           oscillator.frequency.setValueAtTime(updates.frequency, audioContext.currentTime);
         }
         
-        // Update gain
         gain.gain.setValueAtTime(newSettings.volume * newSettings.amplitude, audioContext.currentTime);
       }
       
@@ -190,61 +201,138 @@ const WaveGenerator = () => {
         </div>
 
         <div className="flex flex-col gap-3 overflow-auto pr-2">
-          {/* Presets Card */}
-          <Card className="bg-slate-900/50 border-slate-700/50 shadow-xl">
-            <CardHeader className="pb-2 px-3 pt-2">
-              <CardTitle className="text-slate-100 text-sm font-medium flex items-center gap-2">
-                <Save className="h-4 w-4 text-blue-400" />
-                Presets
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-3">
-              <PresetManager
-                currentSettings={oscillators.map(({ type, frequency, amplitude, volume }) => 
-                  ({ type, frequency, amplitude, volume })
-                )}
-                onPresetLoad={handlePresetLoad}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Oscillators */}
-          <div className="space-y-2">
-            {oscillators.map((osc) => (
-              <Card 
-                key={osc.id} 
-                className={`
-                  bg-slate-900/50 border-slate-700/50 shadow-xl transition-all
-                  ${osc.isPlaying ? 'ring-1 ring-blue-500/50 border-blue-500/30' : 'hover:border-slate-600/50'}
-                `}
+          <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+            <TabsList className="w-full bg-slate-800 border-slate-700">
+              <TabsTrigger 
+                value="basic"
+                className="flex-1 text-slate-200 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400"
               >
+                Basic
+              </TabsTrigger>
+              <TabsTrigger 
+                value="advanced"
+                className="flex-1 text-slate-200 data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400"
+              >
+                Advanced
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="basic" className="mt-3">
+              {/* Presets Card */}
+              <Card className="bg-slate-900/50 border-slate-700/50 shadow-xl mb-3">
                 <CardHeader className="pb-2 px-3 pt-2">
-                  <div className="flex justify-between items-center">
-                    <CardTitle className="text-slate-100 text-sm font-medium flex items-center gap-2">
-                      <div className={`h-2 w-2 rounded-full ${osc.isPlaying ? 'bg-blue-400 animate-pulse' : 'bg-slate-600'}`} />
-                      Oscillator {osc.id}
-                    </CardTitle>
-                    {oscillators.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeOscillator(osc.id)}
-                        className="text-slate-400 hover:text-red-400 hover:bg-slate-800/50 h-7 w-7 p-0"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
+                  <CardTitle className="text-slate-100 text-sm font-medium flex items-center gap-2">
+                    <Save className="h-4 w-4 text-blue-400" />
+                    Presets
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="p-3">
-                  <WaveControls
-                    settings={osc}
-                    onSettingsChange={(newSettings) => updateOscillator(osc.id, newSettings)}
+                  <PresetManager
+                    currentSettings={oscillators.map(({ type, frequency, amplitude, volume }) => 
+                      ({ type, frequency, amplitude, volume })
+                    )}
+                    onPresetLoad={handlePresetLoad}
+                    isAdvanced={false}
                   />
                 </CardContent>
               </Card>
-            ))}
-          </div>
+
+              {/* Basic Oscillators */}
+              <div className="space-y-2">
+                {oscillators.map((osc) => (
+                  <Card 
+                    key={osc.id} 
+                    className={`
+                      bg-slate-900/50 border-slate-700/50 shadow-xl transition-all
+                      ${osc.isPlaying ? 'ring-1 ring-blue-500/50 border-blue-500/30' : 'hover:border-slate-600/50'}
+                    `}
+                  >
+                    <CardHeader className="pb-2 px-3 pt-2">
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="text-slate-100 text-sm font-medium flex items-center gap-2">
+                          <div className={`h-2 w-2 rounded-full ${osc.isPlaying ? 'bg-blue-400 animate-pulse' : 'bg-slate-600'}`} />
+                          Oscillator {osc.id}
+                        </CardTitle>
+                        {oscillators.length > 1 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeOscillator(osc.id)}
+                            className="text-slate-400 hover:text-red-400 hover:bg-slate-800/50 h-7 w-7 p-0"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-3">
+                      <WaveControls
+                        settings={osc}
+                        onSettingsChange={(newSettings) => updateOscillator(osc.id, newSettings)}
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="advanced" className="mt-3">
+              {/* Advanced Presets Card */}
+              <Card className="bg-slate-900/50 border-slate-700/50 shadow-xl mb-3">
+                <CardHeader className="pb-2 px-3 pt-2">
+                  <CardTitle className="text-slate-100 text-sm font-medium flex items-center gap-2">
+                    <Save className="h-4 w-4 text-blue-400" />
+                    Advanced Presets
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-3">
+                  <PresetManager
+                    currentSettings={oscillators}
+                    onPresetLoad={handlePresetLoad}
+                    isAdvanced={true}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Advanced Oscillators */}
+              <div className="space-y-2">
+                {oscillators.map((osc) => (
+                  <Card 
+                    key={osc.id} 
+                    className={`
+                      bg-slate-900/50 border-slate-700/50 shadow-xl transition-all
+                      ${osc.isPlaying ? 'ring-1 ring-blue-500/50 border-blue-500/30' : 'hover:border-slate-600/50'}
+                    `}
+                  >
+                    <CardHeader className="pb-2 px-3 pt-2">
+                      <div className="flex justify-between items-center">
+                        <CardTitle className="text-slate-100 text-sm font-medium flex items-center gap-2">
+                          <div className={`h-2 w-2 rounded-full ${osc.isPlaying ? 'bg-blue-400 animate-pulse' : 'bg-slate-600'}`} />
+                          Oscillator {osc.id}
+                        </CardTitle>
+                        {oscillators.length > 1 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeOscillator(osc.id)}
+                            className="text-slate-400 hover:text-red-400 hover:bg-slate-800/50 h-7 w-7 p-0"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-3">
+                      <AdvancedWaveControls
+                        settings={osc}
+                        onSettingsChange={(newSettings) => updateOscillator(osc.id, newSettings)}
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
           
           {/* Add Oscillator Button */}
           <Button
@@ -260,7 +348,5 @@ const WaveGenerator = () => {
     </div>
   );
 };
-
-
 
 export default WaveGenerator;
