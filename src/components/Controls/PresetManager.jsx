@@ -11,7 +11,7 @@ import {
 import { Save, Trash2, ChevronLeft, ChevronRight, Music2 } from 'lucide-react';
 import WAVE_PRESETS, { CATEGORIES } from '../presets/WavePresets';
 
-const PRESETS_PER_PAGE = 6;
+const PRESETS_PER_PAGE = 4;
 
 // Helper functions (loadCustomPresets and saveCustomPresets remain the same)
 const loadCustomPresets = () => {
