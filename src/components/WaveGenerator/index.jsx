@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Plus, Power } from 'lucide-react';
+import { Trash2, Plus, Power, AudioWaveform } from 'lucide-react';
 import WaveControls from '../Controls/WaveControls';
 import WaveVisualizer from '../WaveVisualizer';
 import useAudioContext from '../../hooks/useAudioContext';
@@ -122,58 +122,74 @@ const WaveGenerator = () => {
   }, [oscillators.map(o => o.isPlaying).join(',')]);
 
   return (
-    <div className="h-screen p-4">
-      <div className="text-center mb-6">
-        <p className="text-lg italic text-slate-400">
-          "If you want to find the secrets of the universe, think in terms of energy, frequency and vibration."
-        </p>
-        <p className="text-sm text-slate-500 mt-1">- Nikola Tesla</p>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[calc(100vh-8rem)]">
-        <div className="lg:col-span-2">
-          <Card className="bg-slate-800 border-slate-600 shadow-xl h-full">
-            <CardHeader>
-              <CardTitle className="text-slate-100">Wave Visualizer</CardTitle>
+    <div className="h-[calc(100vh-16rem)]">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 h-full">
+        <div className="lg:col-span-3 flex flex-col">
+          <Card className="bg-slate-900/50 border-slate-700/50 shadow-xl flex-grow">
+            <CardHeader className="pb-2 border-b border-slate-700/50">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-slate-100 flex items-center gap-2">
+                  <AudioWaveform className="h-5 w-5 text-blue-400" />
+                  Wave Visualizer
+                </CardTitle>
+                {!audioContext && (
+                  <Button 
+                    onClick={handleStartAudio}
+                    className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/50"
+                    size="sm"
+                  >
+                    <Power className="mr-2 h-4 w-4" />
+                    Initialize Audio
+                  </Button>
+                )}
+              </div>
             </CardHeader>
-            <CardContent className="p-4">
-              {!audioContext ? (
-                <Button 
-                  onClick={handleStartAudio}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium"
-                  size="lg"
-                >
-                  <Power className="mr-2 h-5 w-5" />
-                  Initialize Audio
-                </Button>
-              ) : (
-                <div className="bg-slate-900 rounded-lg p-4 h-[calc(100vh-16rem)]">
+            <CardContent className="p-4 flex-grow">
+              {audioContext ? (
+                <div className="bg-slate-950/50 rounded-xl p-4 h-full border border-slate-800/50">
                   <WaveVisualizer analyser={analyser} />
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <div className="text-center text-slate-500">
+                    <AudioWaveform className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Initialize audio to begin</p>
+                  </div>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
 
-        <div className="overflow-auto pr-2">
-          <div className="space-y-3">
+        <div className="flex flex-col gap-3 overflow-auto pr-2">
+          <div className="space-y-2">
             {oscillators.map((osc) => (
-              <Card key={osc.id} className="bg-slate-800 border-slate-600 shadow-xl transition-all hover:border-slate-500">
-                <CardHeader className="pb-2 px-4 pt-3">
+              <Card 
+                key={osc.id} 
+                className={`
+                  bg-slate-900/50 border-slate-700/50 shadow-xl transition-all
+                  ${osc.isPlaying ? 'ring-1 ring-blue-500/50 border-blue-500/30' : 'hover:border-slate-600/50'}
+                `}
+              >
+                <CardHeader className="pb-2 px-3 pt-2">
                   <div className="flex justify-between items-center">
-                    <CardTitle className="text-slate-100 text-base">Oscillator {osc.id}</CardTitle>
+                    <CardTitle className="text-slate-100 text-sm font-medium flex items-center gap-2">
+                      <div className={`h-2 w-2 rounded-full ${osc.isPlaying ? 'bg-blue-400 animate-pulse' : 'bg-slate-600'}`} />
+                      Oscillator {osc.id}
+                    </CardTitle>
                     {oscillators.length > 1 && (
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => removeOscillator(osc.id)}
-                        className="text-slate-400 hover:text-red-400 hover:bg-slate-700/50 h-8 w-8 p-0"
+                        className="text-slate-400 hover:text-red-400 hover:bg-slate-800/50 h-7 w-7 p-0"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <WaveControls
                     settings={osc}
                     onSettingsChange={(newSettings) => updateOscillator(osc.id, newSettings)}
@@ -181,14 +197,15 @@ const WaveGenerator = () => {
                 </CardContent>
               </Card>
             ))}
-            <Button
-              onClick={addOscillator}
-              className="w-full bg-slate-700 hover:bg-slate-600 text-slate-100 mb-4"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add Oscillator
-            </Button>
           </div>
+          <Button
+            onClick={addOscillator}
+            className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/50"
+            size="sm"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Oscillator
+          </Button>
         </div>
       </div>
     </div>
