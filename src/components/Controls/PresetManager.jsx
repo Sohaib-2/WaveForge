@@ -12,36 +12,49 @@ import { Save, Trash2, Star, Folder } from 'lucide-react';
 
 // Built-in presets
 const DEFAULT_PRESETS = {
-  'Bass': {
+  'Deep Bass': {
     category: 'Bass',
     settings: [
-      { type: 'sine', frequency: 55, amplitude: 0.7, volume: 0.8 },
-      { type: 'sine', frequency: 110, amplitude: 0.3, volume: 0.5 }
+      { type: 'sine', frequency: 55, amplitude: 0.7, volume: 0.8 },    // Fundamental
+      { type: 'sine', frequency: 110, amplitude: 0.3, volume: 0.5 },   // First harmonic
+      { type: 'sawtooth', frequency: 55, amplitude: 0.15, volume: 0.4 } // Added texture
     ]
   },
-  'Warm Pad': {
+  'Atmospheric Pad': {
     category: 'Pad',
     settings: [
-      { type: 'sine', frequency: 220, amplitude: 0.4, volume: 0.6 },
-      { type: 'sine', frequency: 440, amplitude: 0.3, volume: 0.4 },
-      { type: 'triangle', frequency: 880, amplitude: 0.2, volume: 0.3 }
+      { type: 'sine', frequency: 220, amplitude: 0.4, volume: 0.6 },    // Base frequency
+      { type: 'sine', frequency: 220.5, amplitude: 0.3, volume: 0.4 },  // Slightly detuned
+      { type: 'triangle', frequency: 440, amplitude: 0.2, volume: 0.3 }, // Octave up
+      { type: 'sine', frequency: 440.5, amplitude: 0.1, volume: 0.2 }   // Detuned octave
     ]
   },
-  'Square Lead': {
+  'Digital Lead': {
     category: 'Lead',
     settings: [
-      { type: 'square', frequency: 440, amplitude: 0.4, volume: 0.6 },
-      { type: 'square', frequency: 443, amplitude: 0.2, volume: 0.3 }
+      { type: 'square', frequency: 440, amplitude: 0.4, volume: 0.6 },     // Main square
+      { type: 'square', frequency: 443, amplitude: 0.2, volume: 0.3 },     // Detuned for thickness
+      { type: 'sawtooth', frequency: 440, amplitude: 0.15, volume: 0.25 }  // Added harmonics
     ]
   },
-  'Rich Texture': {
+  'Textured Soundscape': {
     category: 'Pad',
     settings: [
-      { type: 'sine', frequency: 220, amplitude: 0.3, volume: 0.6 },
-      { type: 'triangle', frequency: 330, amplitude: 0.2, volume: 0.4 },
-      { type: 'sawtooth', frequency: 440, amplitude: 0.1, volume: 0.3 }
+      { type: 'sine', frequency: 220, amplitude: 0.3, volume: 0.6 },      // Base frequency
+      { type: 'triangle', frequency: 329.6, amplitude: 0.2, volume: 0.4 }, // Perfect fifth
+      { type: 'sawtooth', frequency: 440, amplitude: 0.1, volume: 0.3 },  // Octave
+      { type: 'pink', frequency: 0, amplitude: 0.05, volume: 0.15 }       // Subtle noise texture
     ]
   },
+  'Synthetic Strings': {
+    category: 'Pad',
+    settings: [
+      { type: 'sawtooth', frequency: 440, amplitude: 0.3, volume: 0.5 },   // Main saw
+      { type: 'sawtooth', frequency: 442, amplitude: 0.3, volume: 0.5 },   // Detuned saw
+      { type: 'sine', frequency: 440, amplitude: 0.2, volume: 0.4 },       // Sine foundation
+      { type: 'white', frequency: 0, amplitude: 0.02, volume: 0.1 }        // Subtle air
+    ]
+  }
 };
 
 // Load presets from localStorage
