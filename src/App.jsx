@@ -1,8 +1,11 @@
-import React from 'react';
-import { AudioWaveform, Menu, Settings, Info, Github } from 'lucide-react';
+import React, { useState } from 'react';
+import { AudioWaveform, Menu, Info, Github } from 'lucide-react';
 import WaveGenerator from './components/WaveGenerator';
+import AboutDialog from './components/AboutDialog';
 
 function App() {
+  const [aboutOpen, setAboutOpen] = useState(false);
+
   return (
     <div className="h-screen bg-[conic-gradient(at_top,_var(--tw-gradient-stops))] from-slate-900 via-purple-950 to-slate-900 flex">
       {/* Sidebar */}
@@ -14,31 +17,19 @@ function App() {
           </div>
         </div>
         <div className="h-px w-8 bg-slate-800/50" />
-        <button className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800/30 rounded-lg transition-colors relative group">
-          <Menu className="h-6 w-6" />
-          <div className="absolute left-full ml-2 px-2 py-1 bg-slate-900 rounded text-sm text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            Menu
-          </div>
-        </button>
-        <button className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800/30 rounded-lg transition-colors relative group">
-          <Settings className="h-6 w-6" />
-          <div className="absolute left-full ml-2 px-2 py-1 bg-slate-900 rounded text-sm text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            Settings
-          </div>
-        </button>
         <div className="mt-auto flex flex-col gap-2">
-          <a 
-            href="https://github.com/yourusername/waveforge" 
+        <a 
+            href="https://github.com/Sohaib-2/WaveForge" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800/30 rounded-lg transition-colors relative group"
+            className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800/30 rounded-lg transition-colors"
           >
             <Github className="h-6 w-6" />
-            <div className="absolute left-full ml-2 px-2 py-1 bg-slate-900 rounded text-sm text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              GitHub
-            </div>
           </a>
-          <button className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800/30 rounded-lg transition-colors relative group">
+          <button 
+            onClick={() => setAboutOpen(true)}
+            className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800/30 rounded-lg transition-colors relative group"
+          >
             <Info className="h-6 w-6" />
             <div className="absolute left-full ml-2 px-2 py-1 bg-slate-900 rounded text-sm text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
               About
@@ -78,6 +69,9 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* About Dialog */}
+      <AboutDialog open={aboutOpen} onOpenChange={setAboutOpen} />
 
       <style jsx global>{`
         .wave-quote, .wave-quote-delayed {
