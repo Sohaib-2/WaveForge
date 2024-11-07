@@ -8,16 +8,15 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Save, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Save, Trash2, ChevronLeft, ChevronRight, Music2 } from 'lucide-react';
 import WAVE_PRESETS, { CATEGORIES } from '../presets/WavePresets';
-import ADVANCED_WAVE_PRESETS, { ADVANCED_CATEGORIES } from '../presets/AdvanceWavePresets';
 
 const PRESETS_PER_PAGE = 4;
 
-const loadCustomPresets = (isAdvanced) => {
+// Helper functions (loadCustomPresets and saveCustomPresets remain the same)
+const loadCustomPresets = () => {
   try {
-    const key = isAdvanced ? 'waveforge-advanced-presets' : 'waveforge-presets';
-    const saved = localStorage.getItem(key);
+    const saved = localStorage.getItem('waveforge-presets');
     return saved ? JSON.parse(saved) : {};
   } catch (error) {
     console.error('Error loading presets:', error);
@@ -25,16 +24,15 @@ const loadCustomPresets = (isAdvanced) => {
   }
 };
 
-const saveCustomPresets = (presets, isAdvanced) => {
+const saveCustomPresets = (presets) => {
   try {
-    const key = isAdvanced ? 'waveforge-advanced-presets' : 'waveforge-presets';
-    localStorage.setItem(key, JSON.stringify(presets));
+    localStorage.setItem('waveforge-presets', JSON.stringify(presets));
   } catch (error) {
     console.error('Error saving presets:', error);
   }
 };
 
-const PresetManager = ({ currentSettings, onPresetLoad, isAdvanced = false }) => {
+const PresetManager = ({ currentSettings, onPresetLoad }) => {
   const [customPresets, setCustomPresets] = useState({});
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [newPresetName, setNewPresetName] = useState('');
@@ -43,22 +41,17 @@ const PresetManager = ({ currentSettings, onPresetLoad, isAdvanced = false }) =>
   const [currentPage, setCurrentPage] = useState(0);
   const [showAllCategories, setShowAllCategories] = useState(false);
   
-  // Use the appropriate presets and categories based on mode
-  const defaultPresets = isAdvanced ? ADVANCED_WAVE_PRESETS : WAVE_PRESETS;
-  const allCategories = isAdvanced ? ADVANCED_CATEGORIES : CATEGORIES;
-  
   useEffect(() => {
-    setCustomPresets(loadCustomPresets(isAdvanced));
-    setCurrentPage(0);
-    setSelectedCategory('All');
-  }, [isAdvanced]);
+    setCustomPresets(loadCustomPresets());
+    setCurrentPage(0); // Reset page when component mounts
+  }, []);
 
-  const mainCategories = ['All', ...allCategories.slice(1, 5)];
-  const visibleCategories = showAllCategories ? allCategories : mainCategories;
+  const mainCategories = ['All', 'Bass', 'Lead', 'Pad', 'Nature'];
+  const visibleCategories = showAllCategories ? CATEGORIES : mainCategories;
 
   // Get filtered and paginated presets
   const filteredPresets = {
-    ...defaultPresets,
+    ...WAVE_PRESETS,
     ...customPresets
   };
 
@@ -79,9 +72,10 @@ const PresetManager = ({ currentSettings, onPresetLoad, isAdvanced = false }) =>
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    setCurrentPage(0);
+    setCurrentPage(0); // Reset to first page when changing category
   };
 
+  // Other functions remain the same
   const saveNewPreset = () => {
     if (!newPresetName.trim()) return;
     
@@ -95,7 +89,7 @@ const PresetManager = ({ currentSettings, onPresetLoad, isAdvanced = false }) =>
     };
     
     setCustomPresets(newPresets);
-    saveCustomPresets(newPresets, isAdvanced);
+    saveCustomPresets(newPresets);
     setSaveDialogOpen(false);
     setNewPresetName('');
   };
@@ -104,7 +98,7 @@ const PresetManager = ({ currentSettings, onPresetLoad, isAdvanced = false }) =>
     const newPresets = { ...customPresets };
     delete newPresets[name];
     setCustomPresets(newPresets);
-    saveCustomPresets(newPresets, isAdvanced);
+    saveCustomPresets(newPresets);
   };
 
   return (
